@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en" ng-app = 'myApp'>
+<head>
+	<meta charset="UTF-8">
+	<title>angular project7</title>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+	<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+
+<!-- Optional theme -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+	<style>
+
+	body{
+		margin: 10px;
+	}
+	input{
+		margin-bottom: 5px;
+		margin-top: 5px;
+	}
+	</style>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.5/angular.min.js"/></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.5/angular-route.min.js"></script>
+	<script>
+		var myApp = angular.module('myApp',['ngRoute']);
+
+		myApp.config(function($routeProvider){
+			$routeProvider
+			.when('/',{
+				templateUrl : './partials/customers.html'
+			})
+			.when('/orders',{
+				templateUrl : './partials/orders.html'
+			})
+			.otherwise({
+				redirectTo: '/'
+			});
+		});
+
+		myApp.factory('customerFactory',function(){
+			var customers = [
+							{name:'Xinyang',created_at:Date()},
+							{name:'Nancy',created_at:Date()},
+							{name:'Bale',created_at:Date()},
+							];
+			var factory = {};
+			factory.getCustomers = function(callback){
+				callback(customers);
+			}
+			factory.addCustomer = function(newCustomer){
+				console.log('customerFactory:addCustomer--' + newCustomer)
+				var newCustomerObj = {
+										name:newCustomer.name,
+										created_at:Date(),
+										}
+				customers.push(newCustomerObj);
+			}
+			factory.removeCustomer = function(customer){
+				customers.splice(customers.indexOf(customer),1);
+			}
+			return factory;
+		});
+
+		myApp.factory('productFactory',function(){
+			var products = [
+							{name: 'Nike Shoes'},
+							{name: 'Black Belts'},
+							{name: 'Ice Creams'},
+							{name: 'India Meisner'},
+						];
+
+			var factory = {};
+			factory.getProducts = function(callback){
+				callback(products);
+			}
+
+			factory.createAssociation = function(team,player){
+				//retrieve an object from a string
+				playerObj = JSON.parse(player);
+				teamObj = JSON.parse(team);
+				var association = {player:playerObj,team:teamObj};
+				associations.push(association);
+				console.log(associations);
+				association = {};
+			}
+			factory.getAssociations = function(callback){
+				callback(associations);
+			}
+			factory.clearAssociation = function(association){
+				console.log('teamFactory:clearAssociation')
+				associations.splice(associations.indexOf(association),1);
+			}
+			return factory;
+		});
+
+		myApp.controller('customersController',function($scope,customerFactory){
+			$scope.customers = [];
+			customerFactory.getCustomers(function(data){
+				$scope.customers = data;
+			})
+
+			$scope.addCustomer = function(){
+				console.log('customersController:addCustomer--'+ $scope.newCustomer);
+				customerFactory.addCustomer($scope.newCustomer);
+				$scope.newCustomer = {};
+			}
+			$scope.removeCustomer = function(customer){
+				customerFactory.removeCustomer(customer);
+
+			}
+
+		});
+
+		myApp.controller('orderController',function($scope,customerFactory,productFactory){
+			$scope.customers = [];
+			$scope.products = [];
+			$scope.orders = [];
+			customerFactory.getCustomers(function(data){
+				$scope.customers = data;
+			})
+			productFactory.getProducts(function(data){
+				$scope.products = data;
+			})
+
+
+			$scope.makeOrder = function(){
+				console.log('orderController:makeOrder--'+ $scope.newOrder);
+				console.log($scope.newOrder);
+				customerObj = JSON.parse($scope.newOrder.o_customer);
+				productObj = JSON.parse($scope.newOrder.o_product);
+				console.log(customerObj);
+				console.log(productObj);
+				var newOrderObj = {
+									o_customer:customerObj,
+									o_product:productObj,
+									o_quantity:$scope.newOrder.o_quantity,
+									created_at: Date(),
+									}	
+				$scope.orders.push(newOrderObj);
+				$scope.newOrder = {};
+			}
+
+		});
+
+
+	</script>
+</head>
+<body>
+	<div>
+		<a href="#/">customers</a>  |  <a href="#/orders">orders</a>
+		<div ng-view = ''></div>
+	</div>
+
+</body>
+</html>
